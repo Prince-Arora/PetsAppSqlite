@@ -15,6 +15,8 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -26,11 +28,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.example.android.pets.data.PetContract;
 
 
 import com.example.android.pets.data.PetContract;
+import com.example.android.pets.data.PetDbHelper;
 
 
 /**
@@ -116,14 +120,30 @@ public class EditorActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_editor, menu);
         return true;
     }
+    void Save()
+    {
+        PetDbHelper mdbhelper=new PetDbHelper(this);
+        SQLiteDatabase db=mdbhelper.getWritableDatabase();
+        ContentValues values=new ContentValues();
+        values.put(PetContract.PetEntry.COLUMN_PET_NAME,mNameEditText.getText().toString().trim());
+        values.put(PetContract.PetEntry.COLUMN_PET_BREED,mBreedEditText.getText().toString().trim());
+        values.put(PetContract.PetEntry.COLUMN_PET_GENDER,mGender);
+        values.put(PetContract.PetEntry.COLUMN_PET_WEIGHT,Integer.parseInt(mWeightEditText.getText().toString().trim()));
+         long newid=db.insert(PetContract.PetEntry.TABLE_NAME,null,values);
+        if(newid==-1)
+            Toast.makeText(getApplicationContext(),"failed",Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(getApplicationContext(),"Success",Toast.LENGTH_SHORT).show();
 
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // User clicked on a menu option in the app bar overflow menu
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                // Do nothing for now
+                Save();
+                finish();
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
